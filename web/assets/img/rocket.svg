@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" role="img" aria-label="ロケットスタート">
+  <defs>
+    <linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#141e30"/>
+      <stop offset="1" stop-color="#243b55"/>
+    </linearGradient>
+    <linearGradient id="jet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd54d"/>
+      <stop offset="1" stop-color="#ff4e00"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="260" fill="url(#night)"/>
+  <g fill="#ffffff" opacity="0.8">
+    <circle cx="50" cy="40" r="2"/><circle cx="120" cy="70" r="1.5"/>
+    <circle cx="330" cy="50" r="2"/><circle cx="290" cy="110" r="1.5"/>
+    <circle cx="360" cy="160" r="2"/><circle cx="80" cy="150" r="1.5"/>
+  </g>
+  <g transform="rotate(-35 200 120)">
+    <ellipse cx="200" cy="180" rx="14" ry="34" fill="url(#jet)"/>
+    <path d="M200 30 C220 60 226 100 224 140 L176 140 C174 100 180 60 200 30 Z" fill="#e8ecf1"/>
+    <circle cx="200" cy="85" r="14" fill="#4aa3df" stroke="#2c3e50" stroke-width="3"/>
+    <path d="M176 110 L150 150 L178 142 Z" fill="#c0392b"/>
+    <path d="M224 110 L250 150 L222 142 Z" fill="#c0392b"/>
+  </g>
+  <text x="200" y="240" text-anchor="middle" font-family="sans-serif" font-size="22" font-weight="bold" fill="#ffffff">ロケットスタートを決めろ！</text>
+</svg>

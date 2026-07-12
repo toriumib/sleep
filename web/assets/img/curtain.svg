@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" role="img" aria-label="カーテンを開けよう">
+  <defs>
+    <linearGradient id="win" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8ec5fc"/>
+      <stop offset="1" stop-color="#fff6b7"/>
+    </linearGradient>
+    <linearGradient id="cur" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#c0392b"/>
+      <stop offset="1" stop-color="#e74c3c"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="260" fill="#34495e"/>
+  <rect x="70" y="30" width="260" height="170" fill="url(#win)" stroke="#ecf0f1" stroke-width="6"/>
+  <circle cx="200" cy="120" r="34" fill="#ffdf5e"/>
+  <line x1="200" y1="30" x2="200" y2="200" stroke="#ecf0f1" stroke-width="4"/>
+  <path d="M70 30 Q95 115 70 200 L70 30 Z" fill="url(#cur)"/>
+  <path d="M70 30 L110 30 Q88 115 112 200 L70 200 Q95 115 70 30 Z" fill="url(#cur)" opacity="0.85"/>
+  <path d="M330 30 Q305 115 330 200 L330 30 Z" fill="url(#cur)"/>
+  <path d="M330 30 L290 30 Q312 115 288 200 L330 200 Q305 115 330 30 Z" fill="url(#cur)" opacity="0.85"/>
+  <text x="200" y="240" text-anchor="middle" font-family="sans-serif" font-size="24" font-weight="bold" fill="#ffffff">カーテンを開けよう！</text>
+</svg>

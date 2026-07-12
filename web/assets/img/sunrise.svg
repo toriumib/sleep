@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" role="img" aria-label="日の出">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b1055"/>
+      <stop offset="0.5" stop-color="#e96443"/>
+      <stop offset="1" stop-color="#ffd194"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff7ae"/>
+      <stop offset="0.7" stop-color="#ffcc33"/>
+      <stop offset="1" stop-color="#ff8008"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="260" fill="url(#sky)"/>
+  <g stroke="#ffdf80" stroke-width="4" stroke-linecap="round" opacity="0.9">
+    <line x1="200" y1="60" x2="200" y2="30"/>
+    <line x1="140" y1="85" x2="120" y2="62"/>
+    <line x1="260" y1="85" x2="280" y2="62"/>
+    <line x1="110" y1="145" x2="80" y2="140"/>
+    <line x1="290" y1="145" x2="320" y2="140"/>
+  </g>
+  <circle cx="200" cy="180" r="70" fill="url(#sun)"/>
+  <rect y="180" width="400" height="80" fill="#20304f"/>
+  <path d="M0 180 L60 150 L120 180 Z" fill="#182540"/>
+  <path d="M280 180 L350 140 L400 180 Z" fill="#182540"/>
+  <text x="200" y="232" text-anchor="middle" font-family="sans-serif" font-size="24" font-weight="bold" fill="#ffffff">新しい朝が来た！</text>
+</svg>
