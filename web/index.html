@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1a1a2e">
+<title>オキロ！アラーム - 朝起きられない人のための目覚まし</title>
+<meta name="description" content="朝起きられない人のための大音量目覚ましPWA。名言と睡眠のコツ付き。">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/img/icon-192.png">
+<link rel="apple-touch-icon" href="assets/img/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="app-header">
+  <h1>⏰ オキロ！アラーム</h1>
+  <p class="tagline">朝起きられないあなたへ。今日から変わろう。</p>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab active" data-tab="alarm" role="tab">⏰ アラーム</button>
+  <button class="tab" data-tab="quotes" role="tab">💬 名言</button>
+  <button class="tab" data-tab="tips" role="tab">😴 睡眠Tips</button>
+  <button class="tab" data-tab="sounds" role="tab">🔊 サウンド</button>
+</nav>
+
+<main>
+  <!-- ========== アラームタブ ========== -->
+  <section id="tab-alarm" class="tab-panel active">
+    <div class="hero-img-wrap">
+      <img id="hero-img" src="assets/img/sunrise.svg" alt="モチベーション画像">
+    </div>
+
+    <div class="card">
+      <h2>アラームを設定</h2>
+      <div class="alarm-form">
+        <input type="time" id="alarm-time" value="07:00">
+        <select id="alarm-sound"></select>
+        <label class="row"><input type="checkbox" id="alarm-vibrate" checked> バイブレーション</label>
+        <label class="row">音量エスカレーション（徐々に大きく）
+          <input type="checkbox" id="alarm-escalate" checked>
+        </label>
+        <button id="add-alarm" class="btn-primary">＋ アラームを追加</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>設定済みアラーム</h2>
+      <ul id="alarm-list" class="alarm-list"></ul>
+      <p class="note" id="alarm-note">※ ブラウザ版はページ（またはPWA）を開いている間に動作します。画面を閉じても確実に鳴らしたい場合はAndroidアプリ版をご利用ください。</p>
+    </div>
+
+    <div class="card ad-placeholder" aria-hidden="true">
+      <!-- AdSense広告プレースホルダー：本番では以下を差し替えてください
+           <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+           <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="YYYYYYYYYY" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      -->
+      <span>広告スペース（AdSense）</span>
+    </div>
+  </section>
+
+  <!-- ========== 名言タブ ========== -->
+  <section id="tab-quotes" class="tab-panel">
+    <div class="card quote-featured">
+      <p id="quote-of-day-text"></p>
+      <p id="quote-of-day-author" class="quote-author"></p>
+      <button id="shuffle-quote" class="btn-secondary">🔀 別の名言</button>
+    </div>
+    <div id="quotes-list"></div>
+  </section>
+
+  <!-- ========== 睡眠Tipsタブ ========== -->
+  <section id="tab-tips" class="tab-panel">
+    <div id="tips-list"></div>
+  </section>
+
+  <!-- ========== サウンドタブ ========== -->
+  <section id="tab-sounds" class="tab-panel">
+    <div class="card">
+      <h2>内蔵アラーム音（自動生成・著作権フリー）</h2>
+      <div id="builtin-sounds"></div>
+    </div>
+    <div class="card">
+      <h2>お願いボイス</h2>
+      <p class="note">「だれか起こしてください〜！」など、周りに頼るボイス。</p>
+      <div id="voice-sounds"></div>
+    </div>
+    <div class="card">
+      <h2>自分の音声を使う</h2>
+      <p class="note">好きな音声ファイル（mp3 / wav / ogg など）をアラーム音にできます。端末内（IndexedDB）にのみ保存されます。</p>
+      <input type="file" id="custom-sound-file" accept="audio/*">
+      <div id="custom-sound-status"></div>
+    </div>
+  </section>
+</main>
+
+<!-- ========== 鳴動オーバーレイ ========== -->
+<div id="ring-overlay" class="ring-overlay hidden">
+  <img id="ring-img" src="assets/img/sunrise.svg" alt="">
+  <h2 id="ring-title">朝だ！起きろ！</h2>
+  <p id="ring-quote"></p>
+  <div class="ring-buttons">
+    <button id="snooze-btn" class="btn-secondary">😴 スヌーズ（5分）</button>
+    <button id="stop-btn" class="btn-danger">✋ 起きた！</button>
+  </div>
+</div>
+
+<footer class="app-footer">
+  <p>アラーム音・画像・ボイスはすべて自動生成（著作権フリー）</p>
+</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
