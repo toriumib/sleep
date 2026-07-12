@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#12121F</color>
+    <color name="text">#EAEAF2</color>
+    <color name="muted">#9A9AB0</color>
+    <color name="accent">#FFC837</color>
+    <color name="danger">#E74C3C</color>
+    <color name="ring_bg">#2B1055</color>
+    <color name="white">#FFFFFF</color>
+</resources>

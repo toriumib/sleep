@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">オキロ！アラーム</string>
+    <string name="tab_alarm">⏰ アラーム</string>
+    <string name="tab_quotes">💬 名言</string>
+    <string name="tab_tips">😴 睡眠Tips</string>
+    <string name="sound_label">アラーム音</string>
+    <string name="custom_sound">カスタム音源（自分の音声）</string>
+    <string name="pick_custom">🎵 音源ファイルを選ぶ</string>
+    <string name="custom_selected">✅ カスタム音源を選択しました</string>
+    <string name="preview">▶ 試聴</string>
+    <string name="vibrate">バイブレーション</string>
+    <string name="escalate">音量エスカレーション（徐々に大きく）</string>
+    <string name="set_alarm">アラームをセット</string>
+    <string name="cancel_alarm">アラームを解除</string>
+    <string name="alarm_set">アラームをセットしました</string>
+    <string name="alarm_canceled">アラームを解除しました</string>
+    <string name="alarm_set_status">⏰ %1$s に鳴ります</string>
+    <string name="alarm_off">アラームはオフです</string>
+    <string name="today">今日</string>
+    <string name="tomorrow">明日</string>
+    <string name="need_exact_alarm">「アラームとリマインダー」の許可をオンにしてください</string>
+    <string name="channel_name">アラーム</string>
+    <string name="channel_desc">アラームの鳴動通知</string>
+    <string name="ring_title">朝だ！起きろ！</string>
+    <string name="ring_text">アラームが鳴っています</string>
+    <string name="stop">停止</string>
+    <string name="stop_wake">✋ 起きた！</string>
+    <string name="snooze">😴 スヌーズ5分</string>
+</resources>
