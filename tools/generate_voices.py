@@ -63,4 +63,9 @@ def main():
         ])
         outfile = out / (name + ".wav")
         write_wav(outfile, sr, combined)
-        raw.unlink
+        raw.unlink()
+        print("wrote " + str(outfile))
+
+
+if __name__ == "__main__":
+    main()

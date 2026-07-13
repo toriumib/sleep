@@ -26,7 +26,21 @@ const QUOTES = [
   { text: "小さなことを積み重ねることが、とんでもないところへ行くただひとつの道。", author: "格言（積小為大：二宮尊徳の思想より）" },
 ];
 
-// ===== 睡眠・起床Tips（一般に知られた睡眠衛生の知見）=====
+// ===== 追加名言パック（ショップで解放）=====
+const EXTRA_QUOTES = [
+  { text: "なせば成る、なさねば成らぬ何事も。成らぬは人のなさぬなりけり。", author: "上杉鷹山" },
+  { text: "思い立ったが吉日。", author: "日本のことわざ" },
+  { text: "雨だれ石を穿つ。", author: "ことわざ（漢書より）" },
+  { text: "少年老い易く学成り難し。一寸の光陰軽んずべからず。", author: "朱熹（伝）「偶成」" },
+  { text: "明日ありと思う心の仇桜、夜半に嵐の吹かぬものかは。", author: "親鸞（伝）" },
+  { text: "汝、人生を愛するか。ならば時間を浪費するなかれ。人生は時間でできているのだから。", author: "ベンジャミン・フランクリン" },
+  { text: "健全なる精神は健全なる身体に宿れかし。", author: "ユウェナリス" },
+  { text: "習うより慣れよ。", author: "日本のことわざ" },
+  { text: "意志あるところに道は開ける。", author: "西洋のことわざ" },
+  { text: "始めることさえ忘れなければ、遅すぎるということはない。", author: "格言" },
+];
+
+// ===== 睡眠・起床Tips =====
 const TIPS = [
   { icon: "☀️", title: "起きたらすぐ日光を浴びる", body: "起床後はカーテンを開けて朝日を浴びましょう。光が体内時計をリセットし、夜の自然な眠気（メラトニン分泌）を整えます。" },
   { icon: "🛁", title: "就寝90分前の入浴", body: "寝る約90分前に40℃前後のお湯に浸かると、深部体温が一度上がってから下がるタイミングで眠気が来やすくなります。" },
@@ -62,6 +76,66 @@ const VOICE_SOUNDS = [
   { id: "voice_chikoku", name: "「起きないと遅刻しますよ！」", file: "assets/voices/voice_chikoku.wav" },
   { id: "voice_mezamete", name: "「目を覚ましてください！」", file: "assets/voices/voice_mezamete.wav" },
   { id: "voice_ganbare", name: "「今日も頑張りましょう！」", file: "assets/voices/voice_ganbare.wav" },
+];
+
+// ===== ショップ =====
+
+// 追加ボイス（コインで購入）
+const SHOP_VOICES = [
+  { id: "voice_ouen", name: "応援ボイス「あなたならできます！」", price: 80, file: "assets/voices/voice_ouen.wav" },
+  { id: "voice_guntai", name: "鬼軍曹ボイス「起きろー！！」", price: 80, file: "assets/voices/voice_guntai.wav" },
+  { id: "voice_sasayaki", name: "ささやきボイス「そろそろ起きる時間ですよ」", price: 80, file: "assets/voices/voice_sasayaki.wav" },
+  { id: "voice_shitsuji", name: "執事ボイス「お支度のお時間でございます」", price: 80, file: "assets/voices/voice_shitsuji.wav" },
+];
+
+// 追加アラーム音パック（一括解放）
+const PACK_SOUNDS = [
+  { id: "alarm_thunder", name: "サンダー（雷鳴風）", file: "assets/sounds/alarm_thunder.wav" },
+  { id: "alarm_glitch", name: "グリッチ（カオス8bit）", file: "assets/sounds/alarm_glitch.wav" },
+];
+
+// テーマ（着せ替え）
+const THEMES = [
+  { id: "default", name: "ミッドナイト（標準）", price: 0 },
+  { id: "sunrise", name: "サンライズ", price: 100 },
+  { id: "sakura", name: "サクラ", price: 100 },
+  { id: "forest", name: "フォレスト", price: 100 },
+  { id: "ocean", name: "オーシャン", price: 100 },
+  { id: "gold", name: "ゴールドラッシュ", price: 150 },
+];
+
+// その他アイテム
+const ITEM_PRICES = {
+  snooze_ticket: 30,   // スヌーズ1回の権利（二度寝にコストを付ける）
+  sound_pack: 120,     // 追加アラーム音パック
+  quote_pack: 60,      // 追加名言パック
+  gacha: 20,           // 朝の運試しガチャ
+};
+
+// コイン獲得ルール
+const ECON = {
+  adReward: 25,          // リワード広告視聴（Webはシミュレーション）
+  stopTiers: [           // アラーム停止までの秒数 → 獲得コイン
+    { within: 10, coins: 50 },
+    { within: 30, coins: 30 },
+    { within: 60, coins: 15 },
+    { within: Infinity, coins: 5 },
+  ],
+  snoozePenaltyFactor: 0.5, // スヌーズしたら停止ボーナス半減
+  streakBonusPerDay: 5,     // ストリーク1日あたりのボーナス
+  streakBonusMax: 50,
+  initialCoins: 50,
+  initialTickets: 1,
+};
+
+// 実績バッジ
+const BADGES = [
+  { id: "debut", icon: "🌅", name: "はじめての朝", desc: "初めてアラームを止めた" },
+  { id: "speedster", icon: "⚡", name: "光速の目覚め", desc: "10秒以内にアラームを停止" },
+  { id: "streak3", icon: "🔥", name: "三日坊主卒業", desc: "3日連続でスヌーズなし起床" },
+  { id: "streak7", icon: "👑", name: "早起きの王", desc: "7日連続でスヌーズなし起床" },
+  { id: "rich", icon: "💰", name: "朝活長者", desc: "累計500コイン獲得" },
+  { id: "gacha_first", icon: "🎰", name: "運試し", desc: "初めてガチャを回した" },
 ];
 
 const HERO_IMAGES = [
