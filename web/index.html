@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#1a1a2e">
 <title>オキロ！アラーム - 朝起きられない人のための目覚まし</title>
-<meta name="description" content="朝起きられない人のための大音量目覚ましPWA。名言と睡眠のコツ、コインを貯める早起きゲーミフィケーション付き。">
+<meta name="description" content="朝起きられない人のための大音量目覚ましPWA。名言と睡眠のコツ、コインを貯める早起きゲーミフィケーション付き。日英対応。">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="assets/img/icon-192.png">
 <link rel="apple-touch-icon" href="assets/img/icon-192.png">
@@ -13,8 +13,9 @@
 </head>
 <body>
 <header class="app-header">
-  <h1>⏰ オキロ！アラーム</h1>
-  <p class="tagline">朝起きられないあなたへ。今日から変わろう。</p>
+  <button id="lang-toggle" class="lang-toggle" data-i18n="lang_toggle">EN</button>
+  <h1 data-i18n="app_title">⏰ オキロ！アラーム</h1>
+  <p class="tagline" data-i18n="tagline">朝起きられないあなたへ。今日から変わろう。</p>
   <div class="coin-bar">
     <span id="coin-balance" class="coin-balance">🪙 0</span>
     <span id="streak-display" class="streak-display">🔥 0日</span>
@@ -23,11 +24,11 @@
 </header>
 
 <nav class="tabs" role="tablist">
-  <button class="tab active" data-tab="alarm" role="tab">⏰ アラーム</button>
-  <button class="tab" data-tab="quotes" role="tab">💬 名言</button>
-  <button class="tab" data-tab="tips" role="tab">😴 Tips</button>
-  <button class="tab" data-tab="sounds" role="tab">🔊 音</button>
-  <button class="tab" data-tab="shop" role="tab">🛒 ショップ</button>
+  <button class="tab active" data-tab="alarm" role="tab" data-i18n="tab_alarm">⏰ アラーム</button>
+  <button class="tab" data-tab="quotes" role="tab" data-i18n="tab_quotes">💬 名言</button>
+  <button class="tab" data-tab="tips" role="tab" data-i18n="tab_tips">😴 Tips</button>
+  <button class="tab" data-tab="sounds" role="tab" data-i18n="tab_sounds">🔊 音</button>
+  <button class="tab" data-tab="shop" role="tab" data-i18n="tab_shop">🛒 ショップ</button>
 </nav>
 
 <main>
@@ -38,21 +39,21 @@
     </div>
 
     <div class="card">
-      <h2>アラームを設定</h2>
+      <h2 data-i18n="set_alarm_h">アラームを設定</h2>
       <div class="alarm-form">
         <input type="time" id="alarm-time" value="07:00">
         <select id="alarm-sound"></select>
-        <label class="row"><input type="checkbox" id="alarm-vibrate" checked> バイブレーション</label>
-        <label class="row"><input type="checkbox" id="alarm-escalate" checked> 音量エスカレーション（徐々に大きく）</label>
-        <button id="add-alarm" class="btn-primary">＋ アラームを追加</button>
+        <label class="row"><input type="checkbox" id="alarm-vibrate" checked> <span data-i18n="vibrate">バイブレーション</span></label>
+        <label class="row"><input type="checkbox" id="alarm-escalate" checked> <span data-i18n="escalate">音量エスカレーション（徐々に大きく）</span></label>
+        <button id="add-alarm" class="btn-primary" data-i18n="add_alarm">＋ アラームを追加</button>
       </div>
     </div>
 
     <div class="card">
-      <h2>設定済みアラーム</h2>
+      <h2 data-i18n="alarms_h">設定済みアラーム</h2>
       <ul id="alarm-list" class="alarm-list"></ul>
-      <p class="note">💡 早く止めるほどコインがもらえます（10秒以内=50 / 30秒以内=30 / 60秒以内=15 / それ以降=5、スヌーズすると半減）。スヌーズにはチケットが必要です。</p>
-      <p class="note" id="alarm-note">※ ブラウザ版はページ（またはPWA）を開いている間に動作します。画面を閉じても確実に鳴らしたい場合はAndroidアプリ版をご利用ください。</p>
+      <p class="note" data-i18n="coin_rule_note">💡 早く止めるほどコインがもらえます（10秒以内=50 / 30秒以内=30 / 60秒以内=15 / それ以降=5、スヌーズすると半減）。スヌーズにはチケットが必要です。</p>
+      <p class="note" id="alarm-note" data-i18n="browser_note">※ ブラウザ版はページ（またはPWA）を開いている間に動作します。画面を閉じても確実に鳴らしたい場合はAndroidアプリ版をご利用ください。</p>
     </div>
 
     <div class="card ad-placeholder" aria-hidden="true">
@@ -60,7 +61,7 @@
            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="YYYYYYYYYY" data-ad-format="auto" data-full-width-responsive="true"></ins>
       -->
-      <span>広告スペース（AdSense）</span>
+      <span data-i18n="ad_space">広告スペース（AdSense）</span>
     </div>
   </section>
 
@@ -69,11 +70,11 @@
     <div class="card quote-featured">
       <p id="quote-of-day-text"></p>
       <p id="quote-of-day-author" class="quote-author"></p>
-      <button id="shuffle-quote" class="btn-secondary">🔀 別の名言</button>
+      <button id="shuffle-quote" class="btn-secondary" data-i18n="shuffle">🔀 別の名言</button>
     </div>
     <div id="quotes-list"></div>
     <div id="quotes-locked" class="card locked-hint hidden">
-      <p>🔒 追加名言パック（10選）はショップで解放できます。</p>
+      <p data-i18n="quotes_locked">🔒 追加名言パック（16選）はショップで解放できます。</p>
     </div>
   </section>
 
@@ -85,17 +86,17 @@
   <!-- ========== サウンドタブ ========== -->
   <section id="tab-sounds" class="tab-panel">
     <div class="card">
-      <h2>内蔵アラーム音（自動生成・著作権フリー）</h2>
+      <h2 data-i18n="builtin_h">内蔵アラーム音（自動生成・著作権フリー）</h2>
       <div id="builtin-sounds"></div>
     </div>
     <div class="card">
-      <h2>お願いボイス</h2>
-      <p class="note">「だれか起こしてください〜！」など、周りに頼るボイス。追加ボイスはショップで購入できます。</p>
+      <h2 data-i18n="voice_h">お願いボイス</h2>
+      <p class="note" data-i18n="voice_note">「だれか起こしてください〜！」など、周りに頼るボイス。追加ボイスはショップで購入できます。</p>
       <div id="voice-sounds"></div>
     </div>
     <div class="card">
-      <h2>自分の音声を使う</h2>
-      <p class="note">好きな音声ファイル（mp3 / wav / ogg など）をアラーム音にできます。端末内（IndexedDB）にのみ保存されます。</p>
+      <h2 data-i18n="custom_h">自分の音声を使う</h2>
+      <p class="note" data-i18n="custom_note">好きな音声ファイル（mp3 / wav / ogg など）をアラーム音にできます。端末内（IndexedDB）にのみ保存されます。</p>
       <input type="file" id="custom-sound-file" accept="audio/*">
       <div id="custom-sound-status"></div>
     </div>
@@ -104,51 +105,51 @@
   <!-- ========== ショップタブ ========== -->
   <section id="tab-shop" class="tab-panel">
     <div class="card shop-balance-card">
-      <h2>🪙 所持コイン</h2>
-      <p class="big-coins"><span id="shop-balance">0</span> コイン</p>
-      <p class="note">アラームを早く止める・連続早起き・広告視聴でコインが貯まります。</p>
+      <h2 data-i18n="coins_h">🪙 所持コイン</h2>
+      <p class="big-coins"><span id="shop-balance">0</span> <span data-i18n="coins_unit">コイン</span></p>
+      <p class="note" data-i18n="coins_note">アラームを早く止める・連続早起き・広告視聴でコインが貯まります。</p>
     </div>
 
     <div class="card">
-      <h2>📺 広告を見てコインGET</h2>
-      <p class="note">広告を最後まで見ると <strong>+25コイン</strong>。（Web版は疑似視聴。AdSenseに正式なリワード広告はないため、本番はAndroid版のAdMobリワード広告をご利用ください。README参照）</p>
-      <button id="watch-ad" class="btn-primary">▶ 広告を見る（+25🪙）</button>
+      <h2 data-i18n="watch_ad_h">📺 広告を見てコインGET</h2>
+      <p class="note" data-i18n="watch_ad_note">広告を最後まで見ると +25コイン。（Web版は疑似視聴。AdSenseに正式なリワード広告はないため、本番はAndroid版のAdMobリワード広告をご利用ください。README参照）</p>
+      <button id="watch-ad" class="btn-primary" data-i18n="watch_ad_btn">▶ 広告を見る（+25🪙）</button>
       <div id="ad-progress" class="note"></div>
     </div>
 
     <div class="card">
-      <h2>😴 スヌーズチケット</h2>
-      <p class="note">スヌーズ1回につきチケット1枚を消費します。「二度寝にはコストがかかる」仕組みで朝に強くなろう。</p>
+      <h2 data-i18n="ticket_h">😴 スヌーズチケット</h2>
+      <p class="note" data-i18n="ticket_note">スヌーズ1回につきチケット1枚を消費します。「二度寝にはコストがかかる」仕組みで朝に強くなろう。</p>
       <div class="sound-item">
-        <span>スヌーズチケット（所持：<span id="ticket-count">0</span>枚）</span>
-        <button id="buy-ticket" class="btn-secondary">30🪙で購入</button>
+        <span id="ticket-label"></span>
+        <button id="buy-ticket" class="btn-secondary"></button>
       </div>
     </div>
 
     <div class="card">
-      <h2>🎨 テーマ着せ替え</h2>
+      <h2 data-i18n="theme_h">🎨 テーマ着せ替え</h2>
       <div id="theme-shop"></div>
     </div>
 
     <div class="card">
-      <h2>🗣️ 追加ボイス</h2>
+      <h2 data-i18n="voiceshop_h">🗣️ 追加ボイス</h2>
       <div id="voice-shop"></div>
     </div>
 
     <div class="card">
-      <h2>🎵 追加コンテンツ</h2>
+      <h2 data-i18n="pack_h">🎵 追加コンテンツ</h2>
       <div id="pack-shop"></div>
     </div>
 
     <div class="card">
-      <h2>🎰 朝の運試しガチャ（20🪙）</h2>
-      <p class="note">コイン・チケット・激励が当たる！朝の楽しみに。</p>
-      <button id="gacha-btn" class="btn-primary">ガチャを回す</button>
+      <h2 data-i18n="gacha_h">🎰 朝の運試しガチャ（20🪙）</h2>
+      <p class="note" data-i18n="gacha_note">コイン・チケット・激励が当たる！朝の楽しみに。</p>
+      <button id="gacha-btn" class="btn-primary" data-i18n="gacha_btn">ガチャを回す</button>
       <p id="gacha-result" class="gacha-result"></p>
     </div>
 
     <div class="card">
-      <h2>🏅 実績バッジ</h2>
+      <h2 data-i18n="badges_h">🏅 実績バッジ</h2>
       <div id="badges-list" class="badges-grid"></div>
     </div>
   </section>
@@ -157,12 +158,12 @@
 <!-- ========== 鳴動オーバーレイ ========== -->
 <div id="ring-overlay" class="ring-overlay hidden">
   <img id="ring-img" src="assets/img/sunrise.svg" alt="">
-  <h2 id="ring-title">朝だ！起きろ！</h2>
+  <h2 id="ring-title" data-i18n="ring_title">朝だ！起きろ！</h2>
   <p id="ring-timer" class="ring-timer">⏱ 0秒 — 早く止めるほどコインGET！</p>
   <p id="ring-quote"></p>
   <div class="ring-buttons">
-    <button id="snooze-btn" class="btn-secondary">😴 スヌーズ（チケット1枚）</button>
-    <button id="stop-btn" class="btn-danger">✋ 起きた！</button>
+    <button id="snooze-btn" class="btn-secondary" data-i18n="snooze_btn">😴 スヌーズ（チケット1枚）</button>
+    <button id="stop-btn" class="btn-danger" data-i18n="stop_btn">✋ 起きた！</button>
   </div>
 </div>
 
@@ -170,8 +171,17 @@
 <div id="coin-toast" class="coin-toast hidden"></div>
 
 <footer class="app-footer">
-  <p>アラーム音・画像・ボイスはすべて自動生成（著作権フリー）</p>
+  <p data-i18n="footer">アラーム音・画像・ボイスはすべて自動生成（著作権フリー）</p>
 </footer>
+
+<!-- ========== 常時表示バナー広告（Web=AdSense） ========== -->
+<!-- 本番では下記コメント内のAdSenseコードを自分のIDに差し替え、プレースホルダーのdivを置き換えてください。
+     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+     <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="YYYYYYYYYY" data-ad-format="horizontal" data-full-width-responsive="true"></ins>
+     ※AdMobはモバイルアプリ専用でWebでは動作しません。WebのバナーはAdSenseを使用します。 -->
+<div id="ad-banner" class="ad-banner" aria-hidden="true">
+  <span data-i18n="banner_ad">広告（AdSense）— 本番では自分のAdSenseコードに差し替えてください</span>
+</div>
 
 <script src="data.js"></script>
 <script src="app.js"></script>

@@ -1,9 +1,69 @@
-/* オキロ！アラーム - メインロジック */
+/* オキロ！アラーム - メインロジック（日英対応） */
 "use strict";
 
 // ---------- ユーティリティ ----------
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
+
+// ---------- 多言語（i18n） ----------
+const LANG_KEY = "okiro_lang";
+let LANG = localStorage.getItem(LANG_KEY);
+if (LANG !== "en" && LANG !== "ja") {
+  // 保存がなければブラウザ言語から推定（英語圏なら en、それ以外は ja）
+  LANG = (navigator.language || "").toLowerCase().startsWith("en") ? "en" : "ja";
+}
+
+function t(key, params) {
+  let s = (I18N[LANG] && I18N[LANG][key]) || I18N.ja[key] || key;
+  if (params) {
+    for (const k in params) s = s.replace("{" + k + "}", params[k]);
+  }
+  return s;
+}
+// 言語別アクセサ
+const qText = (q) => (LANG === "en" ? q.en : q.ja);
+const qAuthor = (q) => (LANG === "en" ? q.authorEn : q.author);
+const nameOf = (o) => (LANG === "en" && o.nameEn ? o.nameEn : o.name);
+const badgeName = (b) => (LANG === "en" ? b.nameEn : b.name);
+const badgeDesc = (b) => (LANG === "en" ? b.descEn : b.desc);
+const tipTitle = (tp) => (LANG === "en" ? tp.titleEn : tp.title);
+const tipBody = (tp) => (LANG === "en" ? tp.bodyEn : tp.body);
+
+let currentRingQuote = null;
+
+function applyI18n() {
+  document.documentElement.lang = LANG;
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  // 動的要素の再描画
+  renderEconBar();
+  renderQuotes();
+  renderTips();
+  populateSoundSelect();
+  renderSoundLists();
+  renderAlarms();
+  renderThemeShop();
+  renderVoiceShop();
+  renderPackShop();
+  renderBadges();
+  // ショップの一部（テンプレ文字列）
+  const tl = $("#ticket-label");
+  if (tl) tl.textContent = t("ticket_label", { n: econ.tickets });
+  const bt = $("#buy-ticket");
+  if (bt) bt.textContent = t("buy", { n: ITEM_PRICES.snooze_ticket });
+  // 鳴動中なら名言も差し替え
+  if (currentRingQuote) {
+    $("#ring-quote").textContent = `${qText(currentRingQuote)} — ${qAuthor(currentRingQuote)}`;
+  }
+}
+
+// 言語切替ボタン
+$("#lang-toggle").addEventListener("click", () => {
+  LANG = LANG === "ja" ? "en" : "ja";
+  localStorage.setItem(LANG_KEY, LANG);
+  applyI18n();
+});
 
 // ---------- タブ切り替え ----------
 $$(".tab").forEach((btn) => {
@@ -41,12 +101,14 @@ function saveEcon() {
 }
 function renderEconBar() {
   $("#coin-balance").textContent = `🪙 ${econ.coins}`;
-  $("#streak-display").textContent = `🔥 ${econ.streak}日`;
-  $("#ticket-display").textContent = `😴 チケット×${econ.tickets}`;
+  $("#streak-display").textContent = `🔥 ${econ.streak}${t("day_unit")}`;
+  $("#ticket-display").textContent = t("ticket_chip", { n: econ.tickets });
   const sb = $("#shop-balance");
   if (sb) sb.textContent = econ.coins;
   const tc = $("#ticket-count");
   if (tc) tc.textContent = econ.tickets;
+  const tl = $("#ticket-label");
+  if (tl) tl.textContent = t("ticket_label", { n: econ.tickets });
 }
 function showCoinToast(text) {
   const el = $("#coin-toast");
@@ -80,7 +142,7 @@ function unlockBadge(id) {
   econ.badges.push(id);
   saveEcon();
   const b = BADGES.find((x) => x.id === id);
-  if (b) showCoinToast(`🏅 実績解除: ${b.name}`);
+  if (b) showCoinToast(t("badge_unlock", { x: badgeName(b) }));
   renderBadges();
 }
 function checkBadges() {
@@ -95,32 +157,40 @@ function applyTheme(id) {
 }
 
 // ---------- 名言 ----------
+let featuredIdx = null;
 function renderQuotes() {
   const list = $("#quotes-list");
   const unlocked = econ.ownedPacks.includes("quote_pack");
   const pool = unlocked ? QUOTES.concat(EXTRA_QUOTES) : QUOTES;
-  list.innerHTML = pool.map(
-    (q) =>
-      `<div class="quote-item"><p>${q.text}</p><p class="quote-author">— ${q.author}</p></div>`
-  ).join("");
+  list.innerHTML = pool
+    .map(
+      (q) =>
+        `<div class="quote-item"><p>${qText(q)}</p><p class="quote-author">— ${qAuthor(q)}</p></div>`
+    )
+    .join("");
   const locked = $("#quotes-locked");
   if (locked) locked.classList.toggle("hidden", unlocked);
-  pickQuoteOfDay();
+  if (featuredIdx === null) featuredIdx = new Date().getDate() % QUOTES.length;
+  renderFeaturedQuote();
+}
+function renderFeaturedQuote() {
+  const q = QUOTES[featuredIdx] || QUOTES[0];
+  $("#quote-of-day-text").textContent = qText(q);
+  $("#quote-of-day-author").textContent = "— " + qAuthor(q);
 }
 function pickQuoteOfDay(random = false) {
-  const idx = random
+  featuredIdx = random
     ? Math.floor(Math.random() * QUOTES.length)
     : new Date().getDate() % QUOTES.length;
-  $("#quote-of-day-text").textContent = QUOTES[idx].text;
-  $("#quote-of-day-author").textContent = "— " + QUOTES[idx].author;
+  renderFeaturedQuote();
 }
 $("#shuffle-quote").addEventListener("click", () => pickQuoteOfDay(true));
 
 // ---------- 睡眠Tips ----------
 function renderTips() {
   $("#tips-list").innerHTML = TIPS.map(
-    (t) =>
-      `<div class="tip-item"><div class="icon">${t.icon}</div><div><h3>${t.title}</h3><p>${t.body}</p></div></div>`
+    (tp) =>
+      `<div class="tip-item"><div class="icon">${tp.icon}</div><div><h3>${tipTitle(tp)}</h3><p>${tipBody(tp)}</p></div></div>`
   ).join("");
 }
 
@@ -168,7 +238,7 @@ $("#custom-sound-file").addEventListener("change", async (e) => {
   await saveCustomSound(file);
   customSoundBlob = file;
   $("#custom-sound-status").innerHTML =
-    `<p class="note">✅ 「${file.name}」を保存しました。アラーム音の選択肢に「カスタム音源」が追加されます。</p>`;
+    `<p class="note">${t("custom_saved", { x: file.name })}</p>`;
   populateSoundSelect();
 });
 
@@ -178,7 +248,7 @@ function allSounds() {
   const shopVoices = SHOP_VOICES.filter((v) => econ.ownedVoices.includes(v.id));
   const sounds = [...BUILTIN_SOUNDS, ...packSounds, ...VOICE_SOUNDS, ...shopVoices];
   if (customSoundBlob) {
-    sounds.push({ id: "custom", name: "カスタム音源", file: null });
+    sounds.push({ id: "custom", name: t("custom_sound_name"), nameEn: t("custom_sound_name"), file: null });
   }
   return sounds;
 }
@@ -187,15 +257,15 @@ function populateSoundSelect() {
   const sel = $("#alarm-sound");
   const prev = sel.value;
   sel.innerHTML = allSounds()
-    .map((s) => `<option value="${s.id}">${s.name}</option>`)
+    .map((s) => `<option value="${s.id}">${nameOf(s)}</option>`)
     .join("");
   if (prev) sel.value = prev;
 }
 
 function renderSoundLists() {
   const mk = (s) =>
-    `<div class="sound-item"><span>${s.name}</span>
-     <button class="btn-secondary" data-play="${s.id}">▶ 試聴</button></div>`;
+    `<div class="sound-item"><span>${nameOf(s)}</span>
+     <button class="btn-secondary" data-play="${s.id}">${t("preview")}</button></div>`;
   const packSounds = econ.ownedPacks.includes("sound_pack") ? PACK_SOUNDS : [];
   const shopVoices = SHOP_VOICES.filter((v) => econ.ownedVoices.includes(v.id));
   $("#builtin-sounds").innerHTML = BUILTIN_SOUNDS.concat(packSounds).map(mk).join("");
@@ -279,19 +349,22 @@ function saveAlarms() {
 function renderAlarms() {
   const ul = $("#alarm-list");
   if (!alarms.length) {
-    ul.innerHTML = `<li><span class="meta">アラームはまだありません</span></li>`;
+    ul.innerHTML = `<li><span class="meta">${t("no_alarms")}</span></li>`;
     return;
   }
-  const soundName = (id) => (allSounds().find((s) => s.id === id) || {}).name || id;
+  const soundName = (id) => {
+    const s = allSounds().find((x) => x.id === id);
+    return s ? nameOf(s) : id;
+  };
   ul.innerHTML = alarms
     .map(
       (a, i) => `<li>
         <div>
           <div class="time">${a.time}</div>
-          <div class="meta">${soundName(a.sound)}${a.vibrate ? " / バイブ" : ""}${a.escalate ? " / エスカレーション" : ""}</div>
+          <div class="meta">${soundName(a.sound)}${a.vibrate ? " / " + t("meta_vibrate") : ""}${a.escalate ? " / " + t("meta_escalate") : ""}</div>
         </div>
-        <input type="checkbox" class="toggle" data-i="${i}" ${a.enabled ? "checked" : ""} title="有効/無効">
-        <button class="del" data-i="${i}" title="削除">🗑</button>
+        <input type="checkbox" class="toggle" data-i="${i}" ${a.enabled ? "checked" : ""} title="ON/OFF">
+        <button class="del" data-i="${i}" title="×">🗑</button>
       </li>`
     )
     .join("");
@@ -337,23 +410,22 @@ function startRinging(alarm) {
   const overlay = $("#ring-overlay");
   overlay.classList.remove("hidden");
   $("#ring-img").src = HERO_IMAGES[Math.floor(Math.random() * HERO_IMAGES.length)];
-  const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-  $("#ring-quote").textContent = `${q.text} — ${q.author}`;
+  currentRingQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+  $("#ring-quote").textContent = `${qText(currentRingQuote)} — ${qAuthor(currentRingQuote)}`;
   const timerEl = $("#ring-timer");
-  if (timerEl) timerEl.textContent = "⏱ 0秒 — 早く止めるほどコインGET！";
+  if (timerEl) timerEl.textContent = t("ring_timer", { n: 0 });
   ringTimerHandle = setInterval(() => {
     const sec = Math.floor((Date.now() - ringStartTime) / 1000);
-    if (timerEl) timerEl.textContent = `⏱ ${sec}秒 — 早く止めるほどコインGET！`;
+    if (timerEl) timerEl.textContent = t("ring_timer", { n: sec });
   }, 500);
   playSound(alarm.sound, { loop: true, escalate: alarm.escalate });
   if (alarm.vibrate && navigator.vibrate) {
-    // 継続バイブレーション
     const pattern = [600, 200, 600, 200, 1000, 300];
     navigator.vibrate(pattern);
     ringing._vibTimer = setInterval(() => navigator.vibrate(pattern), 3000);
   }
   if (Notification && Notification.permission === "granted") {
-    new Notification("⏰ オキロ！アラーム", { body: "朝だ！起きろ！ " + alarm.time });
+    new Notification(t("notif_title"), { body: t("notif_body") + alarm.time });
   }
 }
 
@@ -362,13 +434,14 @@ function stopRinging() {
   if (ringing && ringing._vibTimer) clearInterval(ringing._vibTimer);
   if (ringTimerHandle) { clearInterval(ringTimerHandle); ringTimerHandle = null; }
   ringing = null;
+  currentRingQuote = null;
   $("#ring-overlay").classList.add("hidden");
 }
 
 $("#stop-btn").addEventListener("click", () => {
   if (!ringing) return;
   const elapsedSec = (Date.now() - ringStartTime) / 1000;
-  const tier = ECON.stopTiers.find((t) => elapsedSec <= t.within);
+  const tier = ECON.stopTiers.find((tt) => elapsedSec <= tt.within);
   let coins = tier ? tier.coins : 5;
   const penalized = !!ringing.penalty;
   if (penalized) coins = Math.round(coins * ECON.snoozePenaltyFactor);
@@ -387,7 +460,7 @@ $("#stop-btn").addEventListener("click", () => {
   saveEcon();
   renderEconBar();
   stopRinging();
-  addCoins(coins, "起床ボーナス");
+  addCoins(coins, t("label_wake_bonus"));
   if (wasFirstStop) unlockBadge("debut");
   if (elapsedSec <= 10) unlockBadge("speedster");
 });
@@ -395,7 +468,7 @@ $("#stop-btn").addEventListener("click", () => {
 $("#snooze-btn").addEventListener("click", () => {
   if (!ringing) return;
   if (econ.tickets <= 0) {
-    showCoinToast("😴 チケットが足りません。ショップで購入してください");
+    showCoinToast(t("no_ticket"));
     return;
   }
   econ.tickets -= 1;
@@ -430,7 +503,6 @@ setInterval(() => {
     if (!a.enabled) continue;
     if (a.time === hhmm && a.lastFired !== today + hhmm) {
       a.lastFired = today + hhmm;
-      // スヌーズで作った一時アラームは発火後に自動削除
       if (a.snooze) {
         const idx = alarms.indexOf(a);
         setTimeout(() => {
@@ -450,15 +522,15 @@ $("#watch-ad").addEventListener("click", () => {
   const progress = $("#ad-progress");
   btn.disabled = true;
   let sec = 5;
-  progress.textContent = `📺 広告視聴中... 残り${sec}秒`;
+  progress.textContent = t("ad_watching", { n: sec });
   const iv = setInterval(() => {
     sec -= 1;
     if (sec > 0) {
-      progress.textContent = `📺 広告視聴中... 残り${sec}秒`;
+      progress.textContent = t("ad_watching", { n: sec });
     } else {
       clearInterval(iv);
-      progress.textContent = "✅ 視聴完了！";
-      addCoins(ECON.adReward, "広告視聴");
+      progress.textContent = t("ad_done");
+      addCoins(ECON.adReward, t("label_ad_watch"));
       btn.disabled = false;
       setTimeout(() => {
         progress.textContent = "";
@@ -473,35 +545,35 @@ $("#buy-ticket").addEventListener("click", () => {
     econ.tickets += 1;
     saveEcon();
     renderEconBar();
-    showCoinToast("😴 スヌーズチケットを購入しました");
+    showCoinToast(t("ticket_bought"));
   } else {
-    showCoinToast("🪙 コインが足りません");
+    showCoinToast(t("not_enough_coins"));
   }
 });
 
 // ---------- ショップ: テーマ ----------
 function renderThemeShop() {
-  $("#theme-shop").innerHTML = THEMES.map((t) => {
-    const owned = econ.ownedThemes.includes(t.id);
-    const active = econ.activeTheme === t.id;
-    const label = active ? "適用中" : owned ? "適用する" : `${t.price}🪙で購入`;
+  $("#theme-shop").innerHTML = THEMES.map((th) => {
+    const owned = econ.ownedThemes.includes(th.id);
+    const active = econ.activeTheme === th.id;
+    const label = active ? t("theme_active") : owned ? t("theme_apply") : t("buy", { n: th.price });
     return `<div class="sound-item">
-      <span>${t.name}</span>
-      <button class="btn-secondary" data-theme-id="${t.id}" ${active ? "disabled" : ""}>${label}</button>
+      <span>${nameOf(th)}</span>
+      <button class="btn-secondary" data-theme-id="${th.id}" ${active ? "disabled" : ""}>${label}</button>
     </div>`;
   }).join("");
   $$("button[data-theme-id]").forEach((b) =>
     b.addEventListener("click", () => {
       const id = b.dataset.themeId;
-      const t = THEMES.find((x) => x.id === id);
+      const th = THEMES.find((x) => x.id === id);
       if (econ.ownedThemes.includes(id)) {
         applyTheme(id);
-      } else if (spendCoins(t.price)) {
+      } else if (spendCoins(th.price)) {
         econ.ownedThemes.push(id);
         applyTheme(id);
-        showCoinToast(`🎨 「${t.name}」を購入しました`);
+        showCoinToast(t("theme_bought", { x: nameOf(th) }));
       } else {
-        showCoinToast("🪙 コインが足りません");
+        showCoinToast(t("not_enough_coins"));
       }
       renderThemeShop();
     })
@@ -513,8 +585,8 @@ function renderVoiceShop() {
   $("#voice-shop").innerHTML = SHOP_VOICES.map((v) => {
     const owned = econ.ownedVoices.includes(v.id);
     return `<div class="sound-item">
-      <span>${v.name}</span>
-      <button class="btn-secondary" data-voice-buy="${v.id}" ${owned ? "disabled" : ""}>${owned ? "購入済み" : `${v.price}🪙で購入`}</button>
+      <span>${nameOf(v)}</span>
+      <button class="btn-secondary" data-voice-buy="${v.id}" ${owned ? "disabled" : ""}>${owned ? t("owned") : t("buy", { n: v.price })}</button>
     </div>`;
   }).join("");
   $$("button[data-voice-buy]").forEach((b) =>
@@ -525,12 +597,12 @@ function renderVoiceShop() {
       if (spendCoins(v.price)) {
         econ.ownedVoices.push(id);
         saveEcon();
-        showCoinToast(`🗣️ 「${v.name}」を購入しました`);
+        showCoinToast(t("voice_bought", { x: nameOf(v) }));
         renderVoiceShop();
         renderSoundLists();
         populateSoundSelect();
       } else {
-        showCoinToast("🪙 コインが足りません");
+        showCoinToast(t("not_enough_coins"));
       }
     })
   );
@@ -539,16 +611,18 @@ function renderVoiceShop() {
 // ---------- ショップ: 追加コンテンツパック ----------
 function renderPackShop() {
   const packs = [
-    { id: "sound_pack", name: "追加アラーム音パック（雷鳴・グリッチ）", price: ITEM_PRICES.sound_pack },
-    { id: "quote_pack", name: "追加名言パック（10選）", price: ITEM_PRICES.quote_pack },
+    { id: "sound_pack", name: t("pack_sound_name"), price: ITEM_PRICES.sound_pack },
+    { id: "quote_pack", name: t("pack_quote_name"), price: ITEM_PRICES.quote_pack },
   ];
-  $("#pack-shop").innerHTML = packs.map((p) => {
-    const owned = econ.ownedPacks.includes(p.id);
-    return `<div class="sound-item">
+  $("#pack-shop").innerHTML = packs
+    .map((p) => {
+      const owned = econ.ownedPacks.includes(p.id);
+      return `<div class="sound-item">
       <span>${p.name}</span>
-      <button class="btn-secondary" data-pack-buy="${p.id}" ${owned ? "disabled" : ""}>${owned ? "購入済み" : `${p.price}🪙で購入`}</button>
+      <button class="btn-secondary" data-pack-buy="${p.id}" ${owned ? "disabled" : ""}>${owned ? t("owned") : t("buy", { n: p.price })}</button>
     </div>`;
-  }).join("");
+    })
+    .join("");
   $$("button[data-pack-buy]").forEach((b) =>
     b.addEventListener("click", () => {
       const id = b.dataset.packBuy;
@@ -557,7 +631,7 @@ function renderPackShop() {
       if (spendCoins(price)) {
         econ.ownedPacks.push(id);
         saveEcon();
-        showCoinToast("🎵 追加コンテンツを解放しました");
+        showCoinToast(t("pack_unlocked"));
         renderPackShop();
         if (id === "sound_pack") {
           renderSoundLists();
@@ -565,7 +639,7 @@ function renderPackShop() {
         }
         if (id === "quote_pack") renderQuotes();
       } else {
-        showCoinToast("🪙 コインが足りません");
+        showCoinToast(t("not_enough_coins"));
       }
     })
   );
@@ -574,27 +648,27 @@ function renderPackShop() {
 // ---------- ショップ: ガチャ ----------
 $("#gacha-btn").addEventListener("click", () => {
   if (!spendCoins(ITEM_PRICES.gacha)) {
-    showCoinToast("🪙 コインが足りません");
+    showCoinToast(t("not_enough_coins"));
     return;
   }
   const roll = Math.random();
   let result;
   if (roll < 0.05) {
-    result = "🎉 大当たり！ +100🪙";
-    addCoins(100, "ガチャ大当たり");
+    result = t("gacha_jackpot");
+    addCoins(100, t("label_gacha_jackpot"));
   } else if (roll < 0.35) {
-    result = "✨ 当たり！ +30🪙";
-    addCoins(30, "ガチャ");
+    result = t("gacha_win30");
+    addCoins(30, t("label_gacha"));
   } else if (roll < 0.55) {
     econ.tickets += 1;
     saveEcon();
     renderEconBar();
-    result = "😴 スヌーズチケット×1 ゲット！";
+    result = t("gacha_ticket");
   } else if (roll < 0.8) {
-    result = "🙂 +5🪙";
-    addCoins(5, "ガチャ");
+    result = t("gacha_win5");
+    addCoins(5, t("label_gacha"));
   } else {
-    result = "💪 「今日も一日頑張ろう！」（はずれ）";
+    result = t("gacha_miss");
   }
   $("#gacha-result").textContent = result;
   unlockBadge("gacha_first");
@@ -606,8 +680,8 @@ function renderBadges() {
     const unlocked = econ.badges.includes(b.id);
     return `<div class="badge-item ${unlocked ? "" : "locked"}">
       <div class="badge-icon">${unlocked ? b.icon : "🔒"}</div>
-      <div class="badge-name">${b.name}</div>
-      <div class="badge-desc">${b.desc}</div>
+      <div class="badge-name">${badgeName(b)}</div>
+      <div class="badge-desc">${badgeDesc(b)}</div>
     </div>`;
   }).join("");
 }
@@ -621,18 +695,8 @@ if ("serviceWorker" in navigator) {
 (async function init() {
   customSoundBlob = await loadCustomSound();
   if (customSoundBlob) {
-    $("#custom-sound-status").innerHTML =
-      `<p class="note">✅ カスタム音源が保存済みです。</p>`;
+    $("#custom-sound-status").innerHTML = `<p class="note">${t("custom_saved_short")}</p>`;
   }
   applyTheme(econ.activeTheme);
-  populateSoundSelect();
-  renderSoundLists();
-  renderQuotes();
-  renderTips();
-  renderAlarms();
-  renderEconBar();
-  renderThemeShop();
-  renderVoiceShop();
-  renderPackShop();
-  renderBadges();
+  applyI18n(); // 全UIとリストを現在の言語で描画
 })();

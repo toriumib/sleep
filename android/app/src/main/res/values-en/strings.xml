@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 英語ロケール用リソース。端末の言語設定が英語のとき自動で使われる。 -->
+<resources>
+    <string name="app_name">Okiro! Alarm</string>
+    <string name="tab_alarm">⏰ Alarm</string>
+    <string name="tab_quotes">💬 Quotes</string>
+    <string name="tab_tips">😴 Sleep Tips</string>
+    <string name="sound_label">Alarm sound</string>
+    <string name="custom_sound">Custom sound (your own audio)</string>
+    <string name="pick_custom">🎵 Choose an audio file</string>
+    <string name="custom_selected">✅ Custom sound selected</string>
+    <string name="preview">▶ Preview</string>
+    <string name="vibrate">Vibration</string>
+    <string name="escalate">Volume escalation (gradually louder)</string>
+    <string name="set_alarm">Set Alarm</string>
+    <string name="cancel_alarm">Cancel Alarm</string>
+    <string name="alarm_set">Alarm set</string>
+    <string name="alarm_canceled">Alarm canceled</string>
+    <string name="alarm_set_status">⏰ Will ring at %1$s</string>
+    <string name="alarm_off">Alarm is off</string>
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="need_exact_alarm">Please turn on the \"Alarms &amp; reminders\" permission</string>
+    <string name="channel_name">Alarm</string>
+    <string name="channel_desc">Alarm ringing notifications</string>
+    <string name="ring_title">It\'s morning! Wake up!</string>
+    <string name="ring_text">The alarm is ringing</string>
+    <string name="stop">Stop</string>
+    <string name="stop_wake">✋ I\'m up!</string>
+    <string name="snooze">😴 Snooze 5 min</string>
+    <string name="ring_timer_format">⏱ %ds — stop sooner for more coins!</string>
+    <string name="coin_reward_toast">🪙 +%d coins!</string>
+    <string name="no_ticket_toast">😴 Not enough snooze tickets. Buy one in the Shop.</string>
+
+    <!-- ===== Coin economy / Shop ===== -->
+    <string name="tab_shop">🛒 Shop</string>
+    <string name="econ_bar_format">🪙 %1$d　🔥 %2$dd　😴 Tickets×%3$d</string>
+    <string name="shop_balance_format">🪙 Coins: %d</string>
+    <string name="watch_ad">▶ Watch an ad for coins (+%d🪙)</string>
+    <string name="ad_loading">Loading ad…</string>
+    <string name="ad_not_ready">The ad is not ready yet. Please try again shortly.</string>
+    <string name="buy_ticket_format">😴 Buy a snooze ticket (%d🪙)</string>
+    <string name="ticket_purchased">😴 Snooze ticket purchased</string>
+    <string name="not_enough_coins">🪙 Not enough coins</string>
+    <string name="gacha_button_format">🎰 Morning Fortune Gacha (%d🪙)</string>
+    <string name="badges_title">🏅 Achievement Badges</string>
+</resources>
