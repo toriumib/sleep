@@ -15,10 +15,26 @@ android {
         versionName = "1.0"
     }
 
+    // リリース署名（CI/ローカルとも環境変数 or gradle.properties から読み込み。未設定なら署名せずビルドする）
+    val storePath = System.getenv("KEYSTORE_PATH") ?: findProperty("RELEASE_STORE_FILE") as String?
+    if (!storePath.isNullOrBlank()) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(storePath)
+                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: findProperty("RELEASE_STORE_PASSWORD") as String?
+                keyAlias = System.getenv("KEY_ALIAS") ?: findProperty("RELEASE_KEY_ALIAS") as String?
+                keyPassword = System.getenv("KEY_PASSWORD") ?: findProperty("RELEASE_KEY_PASSWORD") as String?
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (!storePath.isNullOrBlank()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {

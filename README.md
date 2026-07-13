@@ -53,10 +53,30 @@ python3 -m http.server 8000
 
 ### Androidアプリ
 1. Android Studio（Hedgehog以降推奨、JDK 17）で `android/` フォルダを開く
-2. Gradle Syncを実行（初回は依存ライブラリのダウンロードに時間がかかります）
-   - Gradle wrapperのjarは含めていません。Android Studioが自動解決しない場合は、`android/` で `gradle wrapper` を一度実行してください（Gradle 8.7を想定）。
+2. Gradle Syncを実行（初回は依存ライブラリのダウンロードに時間がかかります。Gradle wrapper同梱済み・Gradle 8.7）
 3. 実機またはエミュレータで実行
 4. 初回起動時に「通知」の許可、アラーム設定時に「アラームとリマインダー」の許可を求められたら許可してください
+
+### AABの自動ビルド（GitHub Actions）
+
+`android/**` を `main` にpushすると `.github/workflows/android-build.yml` が自動実行され、
+リリースAAB（`app-release.aab`）をActionsのartifactとしてビルドします（Actionsタブ → 該当ワークフロー実行 → Artifacts）。
+
+デフォルトは**未署名**でビルドされます（ビルド確認用）。Playストアに提出できる**署名済みAAB**にするには、リポジトリの
+`Settings > Secrets and variables > Actions` に以下4つのSecretsを追加してください。
+
+| Secret名 | 内容 |
+|---|---|
+| `KEYSTORE_BASE64` | 署名用keystoreファイルをbase64エンコードした文字列（例: `base64 -w0 release.keystore`） |
+| `KEYSTORE_PASSWORD` | keystoreのパスワード |
+| `KEY_ALIAS` | 鍵のエイリアス名 |
+| `KEY_PASSWORD` | 鍵のパスワード |
+
+keystoreをまだ持っていない場合は以下で新規作成できます（**このファイルは絶対にリポジトリにコミットしないこと**。`.gitignore`で`*.keystore`は除外していないため、リポジトリ直下ではなく別の場所に保存してください）。
+```bash
+keytool -genkey -v -keystore release.keystore -alias okiro -keyalg RSA -keysize 2048 -validity 10000
+```
+ローカルでも同じ変数を環境変数（`KEYSTORE_PATH` / `KEYSTORE_PASSWORD` / `KEY_ALIAS` / `KEY_PASSWORD`）か `android/gradle.properties`（`RELEASE_STORE_FILE` 等、Git管理外の個人用ファイルに追記）で渡せば `./gradlew bundleRelease` で署名済みAABを作れます。
 
 ## AdMob IDの差し替え（本番公開時に必須）
 

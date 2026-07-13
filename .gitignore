@@ -15,6 +15,12 @@ android/app/build/
 android/captures/
 *.apk
 *.aab
+*.keystore
+*.jks
 
 # Node（将来用）
 node_modules/
+
+# Vercel / ビルド成果物
+web/.vercel/
+dist/
