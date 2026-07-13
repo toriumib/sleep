@@ -27,4 +27,20 @@
     <string name="stop">停止</string>
     <string name="stop_wake">✋ 起きた！</string>
     <string name="snooze">😴 スヌーズ5分</string>
+    <string name="ring_timer_format">⏱ %d秒 — 早く止めるほどコインGET！</string>
+    <string name="coin_reward_toast">🪙 +%dコイン獲得！</string>
+    <string name="no_ticket_toast">😴 スヌーズチケットが足りません。ショップで購入してください</string>
+
+    <!-- ===== コイン経済 / ショップ ===== -->
+    <string name="tab_shop">🛒 ショップ</string>
+    <string name="econ_bar_format">🪙 %1$d　🔥 %2$d日　😴 チケット×%3$d</string>
+    <string name="shop_balance_format">🪙 所持コイン：%d</string>
+    <string name="watch_ad">▶ 広告を見てコインGET（+%d🪙）</string>
+    <string name="ad_loading">広告を読み込み中…</string>
+    <string name="ad_not_ready">広告がまだ準備できていません。しばらくしてから再度お試しください</string>
+    <string name="buy_ticket_format">😴 スヌーズチケットを購入（%d🪙）</string>
+    <string name="ticket_purchased">😴 スヌーズチケットを購入しました</string>
+    <string name="not_enough_coins">🪙 コインが足りません</string>
+    <string name="gacha_button_format">🎰 朝の運試しガチャ（%d🪙）</string>
+    <string name="badges_title">🏅 実績バッジ</string>
 </resources>

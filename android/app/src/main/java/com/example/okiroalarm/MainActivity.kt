@@ -14,15 +14,24 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.okiroalarm.databinding.ActivityMainBinding
+import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import java.util.Calendar
+
+// リワード広告のテストユニットID（本番では自分のIDに差し替えること。README参照）
+private const val REWARDED_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917"
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private var customUri: String? = null
     private var previewPlayer: MediaPlayer? = null
+    private var rewardedAd: RewardedAd? = null
 
     // 通知権限（Android 13+）
     private val notifPermission =
@@ -56,21 +65,125 @@ class MainActivity : AppCompatActivity() {
 
         setupTabs()
         setupAlarmUi()
+        setupShopUi()
         renderQuotes()
         renderTips()
         loadSetting()
+        loadRewardedAd()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        renderEconBar()
+        renderShop()
     }
 
     // ---------- タブ ----------
     private fun setupTabs() {
-        fun show(alarm: Boolean, quotes: Boolean, tips: Boolean) {
+        fun show(alarm: Boolean, quotes: Boolean, tips: Boolean, shop: Boolean) {
             binding.panelAlarm.visibility = if (alarm) android.view.View.VISIBLE else android.view.View.GONE
             binding.panelQuotes.visibility = if (quotes) android.view.View.VISIBLE else android.view.View.GONE
             binding.panelTips.visibility = if (tips) android.view.View.VISIBLE else android.view.View.GONE
+            binding.panelShop.visibility = if (shop) android.view.View.VISIBLE else android.view.View.GONE
+            if (shop) renderShop()
         }
-        binding.tabAlarm.setOnClickListener { show(true, false, false) }
-        binding.tabQuotes.setOnClickListener { show(false, true, false) }
-        binding.tabTips.setOnClickListener { show(false, false, true) }
+        binding.tabAlarm.setOnClickListener { show(true, false, false, false) }
+        binding.tabQuotes.setOnClickListener { show(false, true, false, false) }
+        binding.tabTips.setOnClickListener { show(false, false, true, false) }
+        binding.tabShop.setOnClickListener { show(false, false, false, true) }
+    }
+
+    // ---------- コイン経済 / ショップ ----------
+    private fun renderEconBar() {
+        binding.econBar.text = getString(
+            R.string.econ_bar_format,
+            Economy.getCoins(this),
+            Economy.getStreak(this),
+            Economy.getTickets(this),
+        )
+    }
+
+    private fun renderShop() {
+        renderEconBar()
+        binding.shopBalanceText.text = getString(R.string.shop_balance_format, Economy.getCoins(this))
+        binding.buyTicketButton.text = getString(R.string.buy_ticket_format, Economy.TICKET_PRICE)
+        binding.gachaButton.text = getString(R.string.gacha_button_format, Economy.GACHA_PRICE)
+        val unlocked = Economy.getUnlockedBadges(this)
+        val sb = StringBuilder()
+        Economy.badges.forEach { b ->
+            val icon = if (unlocked.contains(b.id)) b.icon else "🔒"
+            sb.append(icon).append(" ").append(b.name).append(" — ").append(b.desc).append("\n")
+        }
+        binding.badgesText.text = sb.toString().trim()
+    }
+
+    private fun setupShopUi() {
+        binding.watchAdButton.text = getString(R.string.watch_ad, Economy.AD_REWARD)
+        binding.watchAdButton.setOnClickListener {
+            val ad = rewardedAd
+            if (ad == null) {
+                Toast.makeText(this, R.string.ad_not_ready, Toast.LENGTH_SHORT).show()
+                loadRewardedAd()
+                return@setOnClickListener
+            }
+            ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+                override fun onAdDismissedFullScreenContent() {
+                    rewardedAd = null
+                    loadRewardedAd()
+                }
+                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                    rewardedAd = null
+                    loadRewardedAd()
+                }
+            }
+            ad.show(this) {
+                Economy.addCoins(this, Economy.AD_REWARD)
+                Toast.makeText(this, getString(R.string.coin_reward_toast, Economy.AD_REWARD), Toast.LENGTH_SHORT).show()
+                renderShop()
+            }
+        }
+
+        binding.buyTicketButton.setOnClickListener {
+            if (Economy.spendCoins(this, Economy.TICKET_PRICE)) {
+                Economy.addTicket(this)
+                Toast.makeText(this, R.string.ticket_purchased, Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, R.string.not_enough_coins, Toast.LENGTH_SHORT).show()
+            }
+            renderShop()
+        }
+
+        binding.gachaButton.setOnClickListener {
+            if (!Economy.spendCoins(this, Economy.GACHA_PRICE)) {
+                Toast.makeText(this, R.string.not_enough_coins, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val roll = Math.random()
+            val result = when {
+                roll < 0.05 -> { Economy.addCoins(this, 100); "🎉 大当たり！ +100🪙" }
+                roll < 0.35 -> { Economy.addCoins(this, 30); "✨ 当たり！ +30🪙" }
+                roll < 0.55 -> { Economy.addTicket(this); "😴 スヌーズチケット×1 ゲット！" }
+                roll < 0.8 -> { Economy.addCoins(this, 5); "🙂 +5🪙" }
+                else -> "💪 「今日も一日頑張ろう！」（はずれ）"
+            }
+            binding.gachaResultText.text = result
+            Economy.unlockBadge(this, "gacha_first")
+            renderShop()
+        }
+    }
+
+    private fun loadRewardedAd() {
+        RewardedAd.load(
+            this, REWARDED_AD_UNIT_ID, AdRequest.Builder().build(),
+            object : RewardedAdLoadCallback() {
+                override fun onAdLoaded(ad: RewardedAd) {
+                    rewardedAd = ad
+                }
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    rewardedAd = null
+                }
+            }
+        )
     }
 
     // ---------- アラームUI ----------

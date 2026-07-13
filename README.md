@@ -37,7 +37,8 @@ okiro-alarm/
 - バイブレーション、音量エスカレーション、スヌーズ5分
 - 内蔵11音源（`res/raw`）＋SAFによるカスタム音源選択
 - 再起動後の再スケジュール（BootReceiver）
-- Google Mobile Ads SDK（AdMob）バナー広告（**テストID組み込み済み**）
+- Google Mobile Ads SDK（AdMob）バナー広告・リワード広告（**テストID組み込み済み**）
+- 早起きコイン経済（Web版と共通仕様）：停止までの秒数に応じたコイン獲得、スヌーズ用チケット制、広告視聴・ガチャでのコイン獲得、実績バッジ
 
 ## セットアップ
 
@@ -65,8 +66,19 @@ python3 -m http.server 8000
 |---|---|---|
 | アプリID | `android/app/src/main/AndroidManifest.xml` の `com.google.android.gms.ads.APPLICATION_ID` | `ca-app-pub-3940256099942544~3347511713` |
 | バナー広告ユニットID | `android/app/src/main/res/layout/activity_main.xml` の `app:adUnitId` | `ca-app-pub-3940256099942544/6300978111` |
+| リワード広告ユニットID（ショップ「広告を見てコインGET」） | `android/app/src/main/java/com/example/okiroalarm/MainActivity.kt` の `REWARDED_AD_UNIT_ID` | `ca-app-pub-3940256099942544/5224354917` |
 
-WebのAdSenseは `web/index.html` 内の「AdSense広告プレースホルダー」コメントを自分のコード（`ca-pub-XXXX...`）に置き換えてください。
+WebのAdSenseは `web/index.html` 内の「AdSense広告プレースホルダー」コメントを自分のコード（`ca-pub-XXXX...`）に置き換えてください。Web版のリワード広告枠（ショップの「広告を見てコインGET」）はAdSenseに正式なリワード広告APIがないため擬似視聴（5秒タイマー）で実装しています。確実な広告収益化が必要な場合はAndroid版のAdMobリワード広告をご利用ください。
+
+## コイン経済の仕様（Web / Android 共通）
+
+- アラーム停止までの秒数でコイン獲得：10秒以内=50 / 30秒以内=30 / 60秒以内=15 / それ以降=5
+- スヌーズは「スヌーズチケット」を1枚消費（初期所持1枚）。チケットが無いとスヌーズできません
+- スヌーズした場合、次に停止した際の獲得コインは半減、連続早起き記録（ストリーク）もリセット
+- 広告視聴（+25コイン）、ガチャ（20コインで抽選）、スヌーズチケット購入（30コイン）でコインを消費/獲得
+- 実績バッジ：初回起床、10秒以内起床、3日/7日連続起床、累計500コイン獲得、初回ガチャ
+- Web版はショップでテーマ着せ替え・追加ボイス・追加サウンド/名言パックも購入可能（`web/data.js` の `THEMES` / `SHOP_VOICES` / `ITEM_PRICES` で調整可能）
+- データはブラウザの`localStorage`（Web）/ `SharedPreferences`（Android、`Economy.kt`）にローカル保存されます
 
 ## 音源の追加・再生成
 

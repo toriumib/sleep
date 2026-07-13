@@ -6,6 +6,16 @@
     android:orientation="vertical"
     android:background="@color/bg">
 
+    <!-- コインバー -->
+    <TextView
+        android:id="@+id/econBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="8dp"
+        android:textStyle="bold"
+        android:textColor="@color/accent" />
+
     <!-- タブ -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,13 +25,16 @@
 
         <Button android:id="@+id/tabAlarm" style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1" android:text="@string/tab_alarm" />
+            android:layout_weight="1" android:textSize="10sp" android:text="@string/tab_alarm" />
         <Button android:id="@+id/tabQuotes" style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1" android:text="@string/tab_quotes" />
+            android:layout_weight="1" android:textSize="10sp" android:text="@string/tab_quotes" />
         <Button android:id="@+id/tabTips" style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1" android:text="@string/tab_tips" />
+            android:layout_weight="1" android:textSize="10sp" android:text="@string/tab_tips" />
+        <Button android:id="@+id/tabShop" style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:textSize="10sp" android:text="@string/tab_shop" />
     </LinearLayout>
 
     <ScrollView
@@ -147,6 +160,66 @@
                     android:id="@+id/tipsText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:lineSpacingExtra="4dp"
+                    android:textColor="@color/text" />
+            </LinearLayout>
+
+            <!-- ===== ショップパネル ===== -->
+            <LinearLayout
+                android:id="@+id/panelShop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/shopBalanceText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/accent" />
+
+                <Button
+                    android:id="@+id/watchAdButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp" />
+
+                <Button
+                    android:id="@+id/buyTicketButton"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" />
+
+                <Button
+                    android:id="@+id/gachaButton"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" />
+
+                <TextView
+                    android:id="@+id/gachaResultText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/text" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="@string/badges_title"
+                    android:textColor="@color/accent"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/badgesText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:lineSpacingExtra="4dp"
                     android:textColor="@color/text" />
             </LinearLayout>
