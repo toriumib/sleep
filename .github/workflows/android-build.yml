@@ -1,4 +1,5 @@
 name: Android Build (AAB)
+# 署名用Secrets（KEYSTORE_BASE64 / KEYSTORE_PASSWORD / KEY_ALIAS / KEY_PASSWORD）設定後は署名済みAABを出力する。
 
 on:
   push:
