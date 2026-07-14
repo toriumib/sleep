@@ -51,6 +51,23 @@ jobs:
       - name: Build release AAB
         run: ./gradlew bundleRelease --stacktrace
 
+      # 署名の有無を検証する。署名されていなければ失敗させる（ステップの成否＝署名の有無）。
+      - name: Verify AAB is signed
+        run: |
+          set -e
+          AAB=$(ls app/build/outputs/bundle/release/*.aab | head -1)
+          echo "AAB: $AAB"
+          OUT=$(jarsigner -verify "$AAB" 2>&1 || true)
+          echo "$OUT"
+          if echo "$OUT" | grep -q "jar verified"; then
+            echo "✅ 署名済みAABです。"
+          else
+            echo "::error::AABが署名されていません（Secrets未設定の可能性）。"
+            exit 1
+          fi
+          echo "--- 署名証明書 ---"
+          keytool -printcert -jarfile "$AAB" | grep -iE "SHA256|Owner|Valid" || true
+
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
         with:
