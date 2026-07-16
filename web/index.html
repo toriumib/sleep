@@ -38,6 +38,8 @@
       <img id="hero-img" src="assets/img/sunrise.svg" alt="モチベーション画像">
     </div>
 
+    <div id="next-alarm" class="next-alarm hidden"></div>
+
     <div class="card">
       <h2 data-i18n="set_alarm_h">アラームを設定</h2>
       <div class="alarm-form">
@@ -46,6 +48,7 @@
         <label class="row"><input type="checkbox" id="alarm-vibrate" checked> <span data-i18n="vibrate">バイブレーション</span></label>
         <label class="row"><input type="checkbox" id="alarm-escalate" checked> <span data-i18n="escalate">音量エスカレーション（徐々に大きく）</span></label>
         <button id="add-alarm" class="btn-primary" data-i18n="add_alarm">＋ アラームを追加</button>
+        <button id="test-ring" class="btn-secondary" data-i18n="test_ring">🔔 鳴動テスト（コイン加算なし）</button>
       </div>
     </div>
 
@@ -72,6 +75,7 @@
       <p id="quote-of-day-author" class="quote-author"></p>
       <button id="shuffle-quote" class="btn-secondary" data-i18n="shuffle">🔀 別の名言</button>
     </div>
+    <div id="quote-cats" class="quote-cats"></div>
     <div id="quotes-list"></div>
     <div id="quotes-locked" class="card locked-hint hidden">
       <p data-i18n="quotes_locked">🔒 追加名言パック（16選）はショップで解放できます。</p>
@@ -107,6 +111,7 @@
     <div class="card shop-balance-card">
       <h2 data-i18n="coins_h">🪙 所持コイン</h2>
       <p class="big-coins"><span id="shop-balance">0</span> <span data-i18n="coins_unit">コイン</span></p>
+      <p id="wake-stats" class="note wake-stats hidden"></p>
       <p class="note" data-i18n="coins_note">アラームを早く止める・連続早起き・広告視聴でコインが貯まります。</p>
     </div>
 

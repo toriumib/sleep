@@ -38,11 +38,14 @@ function applyI18n() {
   });
   // 動的要素の再描画
   renderEconBar();
+  renderQuoteCats();
   renderQuotes();
   renderTips();
   populateSoundSelect();
   renderSoundLists();
   renderAlarms();
+  renderNextAlarm();
+  renderStats();
   renderThemeShop();
   renderVoiceShop();
   renderPackShop();
@@ -91,6 +94,8 @@ function loadEcon() {
       ownedVoices: [],
       ownedPacks: [],
       badges: [],
+      totalWakes: 0,
+      bestStopSec: null,
     },
     saved || {}
   );
@@ -158,10 +163,41 @@ function applyTheme(id) {
 
 // ---------- 名言 ----------
 let featuredIdx = null;
+let quoteCat = "all"; // 選択中のカテゴリ
+
+// 出典（日本語表記）からカテゴリを推定する
+function quoteCategory(q) {
+  const a = q.author;
+  if (/聖書/.test(a)) return "bible";
+  if (/アウレリウス|セネカ|ホラティウス|エピクテトス|キケロ|ウェルギリウス|オウィディウス|ユウェナリス|ラテン/.test(a)) return "roman";
+  if (/ダンマパダ|一夜賢者|道元|親鸞|孟子|孔子|老子|朱熹|二宮/.test(a)) return "eastern";
+  if (/ことわざ|格言/.test(a)) return "proverb";
+  return "greats";
+}
+
+const QUOTE_CATS = ["all", "bible", "eastern", "roman", "greats", "proverb"];
+
+function renderQuoteCats() {
+  const wrap = $("#quote-cats");
+  if (!wrap) return;
+  wrap.innerHTML = QUOTE_CATS.map(
+    (c) =>
+      `<button class="cat-chip ${quoteCat === c ? "active" : ""}" data-cat="${c}">${t("cat_" + c)}</button>`
+  ).join("");
+  wrap.querySelectorAll("[data-cat]").forEach((b) =>
+    b.addEventListener("click", () => {
+      quoteCat = b.dataset.cat;
+      renderQuoteCats();
+      renderQuotes();
+    })
+  );
+}
+
 function renderQuotes() {
   const list = $("#quotes-list");
   const unlocked = econ.ownedPacks.includes("quote_pack");
-  const pool = unlocked ? QUOTES.concat(EXTRA_QUOTES) : QUOTES;
+  let pool = unlocked ? QUOTES.concat(EXTRA_QUOTES) : QUOTES;
+  if (quoteCat !== "all") pool = pool.filter((q) => quoteCategory(q) === quoteCat);
   list.innerHTML = pool
     .map(
       (q) =>
@@ -373,14 +409,72 @@ function renderAlarms() {
       alarms.splice(Number(b.dataset.i), 1);
       saveAlarms();
       renderAlarms();
+      renderNextAlarm();
     })
   );
   ul.querySelectorAll(".toggle").forEach((b) =>
     b.addEventListener("change", () => {
       alarms[Number(b.dataset.i)].enabled = b.checked;
       saveAlarms();
+      renderNextAlarm();
     })
   );
+}
+
+// ---------- 次のアラームまでのカウントダウン ----------
+function nextAlarmDate() {
+  let best = null;
+  const now = new Date();
+  for (const a of alarms) {
+    if (!a.enabled) continue;
+    const [hh, mm] = a.time.split(":").map(Number);
+    const d = new Date(now);
+    d.setHours(hh, mm, 0, 0);
+    if (d <= now) d.setDate(d.getDate() + 1);
+    if (!best || d < best) best = d;
+  }
+  return best;
+}
+
+function renderNextAlarm() {
+  const el = $("#next-alarm");
+  if (!el) return;
+  const next = nextAlarmDate();
+  if (!next) {
+    el.classList.add("hidden");
+    return;
+  }
+  const diff = Math.max(0, Math.floor((next - Date.now()) / 1000));
+  const h = Math.floor(diff / 3600);
+  const m = Math.floor((diff % 3600) / 60);
+  const s = diff % 60;
+  const tstr = h > 0 ? t("countdown_hms", { h, m, s }) : t("countdown_ms", { m, s });
+  el.textContent = t("next_alarm", { t: tstr });
+  el.classList.remove("hidden");
+}
+
+// ---------- 起床統計 ----------
+function renderStats() {
+  const el = $("#wake-stats");
+  if (!el) return;
+  if (!econ.totalWakes) {
+    el.classList.add("hidden");
+    return;
+  }
+  el.textContent = t("stats_line", { w: econ.totalWakes, s: econ.bestStopSec ?? "-" });
+  el.classList.remove("hidden");
+}
+
+// ---------- Wake Lock（鳴動中は画面を消灯させない） ----------
+let wakeLock = null;
+async function acquireWakeLock() {
+  try {
+    if ("wakeLock" in navigator) wakeLock = await navigator.wakeLock.request("screen");
+  } catch (_) {}
+}
+function releaseWakeLock() {
+  try { wakeLock && wakeLock.release(); } catch (_) {}
+  wakeLock = null;
 }
 
 $("#add-alarm").addEventListener("click", () => {
@@ -396,11 +490,24 @@ $("#add-alarm").addEventListener("click", () => {
   });
   saveAlarms();
   renderAlarms();
+  renderNextAlarm();
   // ユーザー操作のタイミングでAudioContextを解錠しておく（自動再生制限対策）
   ctx();
   if (Notification && Notification.permission === "default") {
     Notification.requestPermission();
   }
+});
+
+// ---------- 鳴動テスト（コイン加算なし） ----------
+$("#test-ring").addEventListener("click", () => {
+  ctx(); // ユーザー操作で AudioContext を解錠
+  startRinging({
+    time: $("#alarm-time").value || "07:00",
+    sound: $("#alarm-sound").value,
+    vibrate: $("#alarm-vibrate").checked,
+    escalate: $("#alarm-escalate").checked,
+    test: true,
+  });
 });
 
 // ---------- 鳴動 ----------
@@ -413,11 +520,17 @@ function startRinging(alarm) {
   currentRingQuote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
   $("#ring-quote").textContent = `${qText(currentRingQuote)} — ${qAuthor(currentRingQuote)}`;
   const timerEl = $("#ring-timer");
-  if (timerEl) timerEl.textContent = t("ring_timer", { n: 0 });
-  ringTimerHandle = setInterval(() => {
-    const sec = Math.floor((Date.now() - ringStartTime) / 1000);
-    if (timerEl) timerEl.textContent = t("ring_timer", { n: sec });
-  }, 500);
+  if (alarm.test) {
+    // テストモード：コイン加算なしの旨を表示
+    if (timerEl) timerEl.textContent = t("test_badge");
+  } else {
+    if (timerEl) timerEl.textContent = t("ring_timer", { n: 0 });
+    ringTimerHandle = setInterval(() => {
+      const sec = Math.floor((Date.now() - ringStartTime) / 1000);
+      if (timerEl) timerEl.textContent = t("ring_timer", { n: sec });
+    }, 500);
+  }
+  acquireWakeLock();
   playSound(alarm.sound, { loop: true, escalate: alarm.escalate });
   if (alarm.vibrate && navigator.vibrate) {
     const pattern = [600, 200, 600, 200, 1000, 300];
@@ -431,6 +544,7 @@ function startRinging(alarm) {
 
 function stopRinging() {
   stopPlayback();
+  releaseWakeLock();
   if (ringing && ringing._vibTimer) clearInterval(ringing._vibTimer);
   if (ringTimerHandle) { clearInterval(ringTimerHandle); ringTimerHandle = null; }
   ringing = null;
@@ -440,6 +554,7 @@ function stopRinging() {
 
 $("#stop-btn").addEventListener("click", () => {
   if (!ringing) return;
+  if (ringing.test) { stopRinging(); return; } // テストは報酬なしで閉じるだけ
   const elapsedSec = (Date.now() - ringStartTime) / 1000;
   const tier = ECON.stopTiers.find((tt) => elapsedSec <= tt.within);
   let coins = tier ? tier.coins : 5;
@@ -457,8 +572,13 @@ $("#stop-btn").addEventListener("click", () => {
   } else {
     econ.streak = 0;
   }
+  // 起床統計を更新
+  econ.totalWakes = (econ.totalWakes || 0) + 1;
+  const sec = Math.round(elapsedSec * 10) / 10;
+  if (econ.bestStopSec == null || sec < econ.bestStopSec) econ.bestStopSec = sec;
   saveEcon();
   renderEconBar();
+  renderStats();
   stopRinging();
   addCoins(coins, t("label_wake_bonus"));
   if (wasFirstStop) unlockBadge("debut");
@@ -467,6 +587,7 @@ $("#stop-btn").addEventListener("click", () => {
 
 $("#snooze-btn").addEventListener("click", () => {
   if (!ringing) return;
+  if (ringing.test) { stopRinging(); return; } // テストはチケット消費なしで閉じる
   if (econ.tickets <= 0) {
     showCoinToast(t("no_ticket"));
     return;
@@ -494,6 +615,7 @@ $("#snooze-btn").addEventListener("click", () => {
 
 // 毎秒チェック
 setInterval(() => {
+  renderNextAlarm();
   if (ringing) return;
   const now = new Date();
   const hhmm =
