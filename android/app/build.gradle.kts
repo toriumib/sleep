@@ -8,7 +8,9 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.okiroalarm"
+        // Playストアは com.example.* を拒否するため独自IDを使用。
+        // ※初回アップロード後は二度と変更できない。変えたい場合は公開前に。
+        applicationId = "io.github.toriumib.okiroalarm"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

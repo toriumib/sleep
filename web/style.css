@@ -435,3 +435,4 @@ button { font-family: inherit; }
 }
 
 .app-footer { text-align: center; color: var(--muted); font-size: 0.72rem; padding: 24px 12px 8px; }
+.footer-link { color: var(--muted); text-decoration: underline; }

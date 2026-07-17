@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Feature Graphic 1024x500 — Okiro! Alarm</title>
+<style>
+  body { margin: 0; background: #333; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 20px; font-family: sans-serif; }
+  .hint { color: #ccc; font-size: 13px; max-width: 1024px; }
+  #canvas {
+    width: 1024px; height: 500px;
+    position: relative; overflow: hidden;
+    background: linear-gradient(160deg, #2b1055 0%, #4a1a6b 35%, #b83b5e 70%, #e96443 100%);
+    font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif;
+  }
+  .sun {
+    position: absolute; left: 740px; top: 210px;
+    width: 340px; height: 340px; border-radius: 50%;
+    background: radial-gradient(circle, #ffd23f 0%, #ff8008 55%, rgba(255,128,8,0) 75%);
+  }
+  .rays {
+    position: absolute; left: 640px; top: 110px; width: 540px; height: 540px;
+    background: repeating-conic-gradient(rgba(255,210,63,0.16) 0deg 8deg, transparent 8deg 24deg);
+    border-radius: 50%;
+  }
+  .title {
+    position: absolute; left: 64px; top: 130px;
+    color: #fff; font-size: 84px; font-weight: 900; letter-spacing: 0.02em;
+    text-shadow: 0 4px 24px rgba(0,0,0,0.45);
+  }
+  .subtitle {
+    position: absolute; left: 66px; top: 250px;
+    color: #ffe9b0; font-size: 34px; font-weight: bold;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  }
+  .chips { position: absolute; left: 66px; top: 330px; display: flex; gap: 14px; }
+  .chip {
+    background: rgba(0,0,0,0.35); color: #fff; border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 999px; padding: 12px 22px; font-size: 24px; font-weight: bold;
+  }
+  .clock { position: absolute; left: 64px; top: 48px; font-size: 44px; }
+</style>
+</head>
+<body>
+<p class="hint">
+  Chromeでこのファイルを開き、F12 → Ctrl+Shift+P → 「Capture node screenshot」→ 下の枠（#canvas）を
+  Elementsパネルで選択して実行すると、ちょうど1024×500のPNGが保存されます。
+  文言は自由に書き換えてOK（英語版ストア用は英語文言に差し替えて撮り直し）。
+</p>
+<div id="canvas">
+  <div class="rays"></div>
+  <div class="sun"></div>
+  <div class="clock">⏰</div>
+  <div class="title">オキロ！アラーム</div>
+  <div class="subtitle">早く起きるほど、コインが貯まる。</div>
+  <div class="chips">
+    <div class="chip">🪙 起床でコインGET</div>
+    <div class="chip">🔥 連続記録</div>
+    <div class="chip">💬 朝の名言70+</div>
+  </div>
+</div>
+<p class="hint">英語版の例: タイトル「Okiro! Alarm」/ サブタイトル「The alarm that pays you to wake up.」/ チップ「🪙 Earn coins」「🔥 Streaks」「💬 70+ quotes」</p>
+</body>
+</html>

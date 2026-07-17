@@ -1,0 +1,8 @@
+# app-ads.txt — AdMob公開後に有効化するファイル
+# 手順（store/play-store-publishing-guide.md 参照）:
+# 1. AdMob管理画面 → 「アプリ」→ 対象アプリ → 「app-ads.txt」で自分の行を確認
+# 2. 下の行の pub-0000000000000000 を自分のサイト運営者ID（pub-で始まる16桁）に置き換えて
+#    コメント(#)を外す
+# 3. Play Consoleのストア掲載情報「ウェブサイト」にこのサイトのURLを設定
+#
+# google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
