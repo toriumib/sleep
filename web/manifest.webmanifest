@@ -1,7 +1,7 @@
 {
-  "name": "オキロ！アラーム",
-  "short_name": "オキロ！",
-  "description": "朝起きられない人のための大音量目覚ましPWA。名言と睡眠のコツ付き。",
+  "name": "Okiro! Alarm — オキロ！アラーム",
+  "short_name": "Okiro!",
+  "description": "Loud morning alarm PWA with quotes, sleep tips & wake-up coin game. 朝起きられない人のための大音量目覚まし。6言語対応。",
   "lang": "ja",
   "start_url": "./index.html",
   "scope": "./",

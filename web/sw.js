@@ -2,7 +2,7 @@
 // CACHE_NAME を更新すると旧キャッシュは activate 時に削除される。
 // コア（HTML/JS/CSS）はネットワーク優先で常に最新を配信し、オフライン時のみキャッシュへフォールバック。
 // アセット（音源・画像）はキャッシュ優先で高速化。
-const CACHE_NAME = "okiro-alarm-v2";
+const CACHE_NAME = "okiro-alarm-v3";
 const ASSETS = [
   "./",
   "./index.html",

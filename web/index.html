@@ -13,7 +13,14 @@
 </head>
 <body>
 <header class="app-header">
-  <button id="lang-toggle" class="lang-toggle" data-i18n="lang_toggle">EN</button>
+  <select id="lang-select" class="lang-select" aria-label="Language">
+    <option value="ja">🇯🇵 日本語</option>
+    <option value="en">🇺🇸 English</option>
+    <option value="es">🇪🇸 Español</option>
+    <option value="pt">🇧🇷 Português</option>
+    <option value="id">🇮🇩 Indonesia</option>
+    <option value="ko">🇰🇷 한국어</option>
+  </select>
   <h1 data-i18n="app_title">⏰ オキロ！アラーム</h1>
   <p class="tagline" data-i18n="tagline">朝起きられないあなたへ。今日から変わろう。</p>
   <div class="coin-bar">
@@ -57,6 +64,7 @@
       <ul id="alarm-list" class="alarm-list"></ul>
       <p class="note" data-i18n="coin_rule_note">💡 早く止めるほどコインがもらえます（10秒以内=50 / 30秒以内=30 / 60秒以内=15 / それ以降=5、スヌーズすると半減）。スヌーズにはチケットが必要です。</p>
       <p class="note" id="alarm-note" data-i18n="browser_note">※ ブラウザ版はページ（またはPWA）を開いている間に動作します。画面を閉じても確実に鳴らしたい場合はAndroidアプリ版をご利用ください。</p>
+      <button id="share-btn" class="btn-secondary share-btn" data-i18n="share_btn">📣 起床記録をシェア</button>
     </div>
 
     <div class="card ad-placeholder" aria-hidden="true">

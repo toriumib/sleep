@@ -55,20 +55,26 @@ body {
   to { background-position: 100% 100%; }
 }
 .app-header h1 { text-shadow: 0 2px 14px rgba(255, 128, 8, 0.35); }
-.lang-toggle {
+.lang-select {
   position: absolute;
   top: 12px;
   right: 12px;
-  padding: 6px 12px;
+  padding: 6px 10px;
   border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.12);
   color: var(--text);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: bold;
   cursor: pointer;
+  width: auto;
+  appearance: none;
+  -webkit-appearance: none;
 }
-.lang-toggle:hover { background: rgba(255, 255, 255, 0.22); }
+.lang-select:hover { background: rgba(255, 255, 255, 0.22); }
+.lang-select option { background: var(--card); color: var(--text); }
+
+.share-btn { width: 100%; margin-top: 12px; }
 .app-header h1 { font-size: 1.5rem; letter-spacing: 0.04em; }
 .tagline { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
 

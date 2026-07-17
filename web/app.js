@@ -6,33 +6,42 @@ const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
 // ---------- 多言語（i18n） ----------
+// 対応言語。名言・Tips・音源名は ja / en の2言語のみ持ち、
+// その他の言語では en にフォールバックする（UI文字列は各言語辞書 → en → ja の順）。
+const SUPPORTED_LANGS = ["ja", "en", "es", "pt", "id", "ko"];
 const LANG_KEY = "okiro_lang";
 let LANG = localStorage.getItem(LANG_KEY);
-if (LANG !== "en" && LANG !== "ja") {
-  // 保存がなければブラウザ言語から推定（英語圏なら en、それ以外は ja）
-  LANG = (navigator.language || "").toLowerCase().startsWith("en") ? "en" : "ja";
+if (!SUPPORTED_LANGS.includes(LANG)) {
+  const nav = (navigator.language || "").toLowerCase().slice(0, 2);
+  LANG = SUPPORTED_LANGS.includes(nav) ? nav : "en";
 }
 
 function t(key, params) {
-  let s = (I18N[LANG] && I18N[LANG][key]) || I18N.ja[key] || key;
+  let s =
+    (I18N[LANG] && I18N[LANG][key]) ||
+    (I18N.en && I18N.en[key]) ||
+    I18N.ja[key] ||
+    key;
   if (params) {
     for (const k in params) s = s.replace("{" + k + "}", params[k]);
   }
   return s;
 }
-// 言語別アクセサ
-const qText = (q) => (LANG === "en" ? q.en : q.ja);
-const qAuthor = (q) => (LANG === "en" ? q.authorEn : q.author);
-const nameOf = (o) => (LANG === "en" && o.nameEn ? o.nameEn : o.name);
-const badgeName = (b) => (LANG === "en" ? b.nameEn : b.name);
-const badgeDesc = (b) => (LANG === "en" ? b.descEn : b.desc);
-const tipTitle = (tp) => (LANG === "en" ? tp.titleEn : tp.title);
-const tipBody = (tp) => (LANG === "en" ? tp.bodyEn : tp.body);
+// コンテンツ（名言・Tips・音源名）は ja 以外はすべて en を表示
+const qText = (q) => (LANG === "ja" ? q.ja : q.en);
+const qAuthor = (q) => (LANG === "ja" ? q.author : q.authorEn);
+const nameOf = (o) => (LANG === "ja" ? o.name : o.nameEn || o.name);
+const badgeName = (b) => (LANG === "ja" ? b.name : b.nameEn);
+const badgeDesc = (b) => (LANG === "ja" ? b.desc : b.descEn);
+const tipTitle = (tp) => (LANG === "ja" ? tp.title : tp.titleEn);
+const tipBody = (tp) => (LANG === "ja" ? tp.body : tp.bodyEn);
 
 let currentRingQuote = null;
 
 function applyI18n() {
   document.documentElement.lang = LANG;
+  const sel = $("#lang-select");
+  if (sel) sel.value = LANG;
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     el.textContent = t(el.dataset.i18n);
   });
@@ -61,9 +70,9 @@ function applyI18n() {
   }
 }
 
-// 言語切替ボタン
-$("#lang-toggle").addEventListener("click", () => {
-  LANG = LANG === "ja" ? "en" : "ja";
+// 言語セレクタ
+$("#lang-select").addEventListener("change", (e) => {
+  LANG = e.target.value;
   localStorage.setItem(LANG_KEY, LANG);
   applyI18n();
 });
@@ -96,6 +105,7 @@ function loadEcon() {
       badges: [],
       totalWakes: 0,
       bestStopSec: null,
+      lastDailyBonus: null,
     },
     saved || {}
   );
@@ -498,6 +508,24 @@ $("#add-alarm").addEventListener("click", () => {
   }
 });
 
+// ---------- 起床記録のシェア（バイラル導線） ----------
+$("#share-btn").addEventListener("click", async () => {
+  const text =
+    t("share_text", {
+      w: econ.totalWakes || 0,
+      s: econ.bestStopSec ?? "-",
+      d: econ.streak || 0,
+    }) + "\n" + location.origin + location.pathname;
+  if (navigator.share) {
+    try { await navigator.share({ text }); } catch (_) {}
+  } else {
+    try {
+      await navigator.clipboard.writeText(text);
+      showCoinToast(t("share_copied"));
+    } catch (_) {}
+  }
+});
+
 // ---------- 鳴動テスト（コイン加算なし） ----------
 $("#test-ring").addEventListener("click", () => {
   ctx(); // ユーザー操作で AudioContext を解錠
@@ -821,4 +849,12 @@ if ("serviceWorker" in navigator) {
   }
   applyTheme(econ.activeTheme);
   applyI18n(); // 全UIとリストを現在の言語で描画
+
+  // デイリーログインボーナス（1日1回 +10コイン）
+  const todayKey = new Date().toDateString();
+  if (econ.lastDailyBonus !== todayKey) {
+    econ.lastDailyBonus = todayKey;
+    saveEcon();
+    setTimeout(() => addCoins(10, t("label_daily")), 900);
+  }
 })();
